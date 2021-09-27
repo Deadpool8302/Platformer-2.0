@@ -1,0 +1,68 @@
+class App;
+target, running, pollevent, update, clock, draw, constructor
+
+
+class Game;
+tilesize,palye;..update,draw
+
+
+m_name
+UpdateGame()
+
+
+class{ 
+public func
+	constructor
+
+	pro
+
+	pri
+
+private var
+prot var
+pub var
+
+}
+
+#include <memory>
+
+class Platform {
+private:
+	sf::RectangleShape hitbox; 
+	sf::Sprite* img; // std::vector<Sprite> img;
+	bool isSingle; - 
+
+public:
+	Platform(sf::Vector2f, sf::Vector2f);
+	~Platform();
+
+	bool isHit(sf::FloatRect);
+	void move(sf::Vector2f);
+
+	sf::FloatRect getGlobalBounds();
+
+	sf::RectangleShape& getHitbox();
+
+	void updateSprite();
+	void loadTiles(sf::Vector2f&, std::unordered_map<std::string, sf::Texture>&);
+
+	static std::vector<Platform> plats;
+	static void add(sf::Vector2f,sf::Vector2f, sf::Vector2f&, std::unordered_map<std::string, sf::Texture>&);
+	static void drawAll(sf::RenderWindow&);
+	static void deleteAll();
+};
+
+/////////////////////////////////////////////////////\ 7-9-21 /\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+class Collision:
+	getglobal & local bounds
+	
+	vector<Collision*> allCollidables
+
+	protected:
+		updateCollisionBounds
+
+	private:
+	floatrect hitbox
+
+
