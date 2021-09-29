@@ -5,7 +5,7 @@
 #include<unordered_map>
 #include<map>
 #include"Game.hpp"
-#include<GUI.hpp>
+#include<ZUI.hpp>
 #include<fstream>
 #include<sstream>
 
@@ -87,40 +87,40 @@ private:
 
 	float m_musicVolume;
 
-	gui::Frame m_frame_mainMenu;
+	zui::Frame m_frame_mainMenu;
 	sf::Sprite m_bgImg_mainMenu;
 	sf::Texture m_texture_mainMenu;
 
-	gui::Frame m_frame_pauseMenu;
-	gui::Frame m_frame_gameOverMenu;
-	gui::Frame m_frame_levelMenu;
-	gui::Frame m_frame_optionsMenu;
+	zui::Frame m_frame_pauseMenu;
+	zui::Frame m_frame_gameOverMenu;
+	zui::Frame m_frame_levelMenu;
+	zui::Frame m_frame_optionsMenu;
 
 	// Main Menu Buttons
-	gui::TextButton m_button_start;
-	gui::TextButton m_button_level;
-	gui::TextButton m_button_options;
-	gui::TextButton m_button_exit;
+	zui::TextButton m_button_start;
+	zui::TextButton m_button_level;
+	zui::TextButton m_button_options;
+	zui::TextButton m_button_exit;
 
 	sf::Texture test;
 
 	// Pause Menu Buttons
-	gui::TextButton m_button_resume;
-	gui::TextButton m_button_restart;
-	gui::TextButton m_button_menu;
+	zui::TextButton m_button_resume;
+	zui::TextButton m_button_restart;
+	zui::TextButton m_button_menu;
 
 	// Options Menu Buttons
-	gui::TextButton m_button_vol;
-	gui::Slider m_slider_vol;
+	zui::TextButton m_button_vol;
+	zui::Slider m_slider_vol;
 
-	gui::TextButton m_button_back;
-	gui::Textbox m_textbox_control_left;
-	gui::Textbox m_textbox_control_right;
-	gui::Inputbox m_inputbox_control_left;
-	gui::Inputbox m_inputbox_control_right;
+	zui::TextButton m_button_back;
+	zui::Textbox m_textbox_control_left;
+	zui::Textbox m_textbox_control_right;
+	zui::Inputbox m_inputbox_control_left;
+	zui::Inputbox m_inputbox_control_right;
 
-	gui::Textbox m_textbox_control_jump; // temp
+	zui::Textbox m_textbox_control_jump; // temp
 
-	gui::TextButton m_button_save;
+	zui::TextButton m_button_save;
 
 };
