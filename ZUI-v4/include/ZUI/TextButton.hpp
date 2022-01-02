@@ -132,4 +132,8 @@ private:
 	sf::Vector2f m_second_ScaleFactor;					/// < second scale factor of the shape
 };
 
+
+typedef std::unique_ptr<zui::TextButton> TextButton_ptr;
+
+
 } // namespace zui

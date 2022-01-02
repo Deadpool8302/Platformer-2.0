@@ -47,6 +47,16 @@ sf::Vector2<bool> Animation::getInverted() const
 	return m_xyFlip;
 }
 
+int Animation::getCurrentFrame() const
+{
+	return m_frame;
+}
+
+bool Animation::isAnimationComp() const
+{
+	return m_AnimComplete;
+}
+
 void Animation::animate(float dt)
 {
 	m_count += dt;
@@ -54,6 +64,8 @@ void Animation::animate(float dt)
 		m_count = 0;
 		m_img.setTextureRect({ (m_frameRect.left + m_frameSize.x * m_frame) % m_frameRect.width, m_frameRect.top, m_frameSize.x, m_frameSize.y });
 		m_frame++;
+		if (m_frame == m_frameLimit) m_AnimComplete = true;
+		else m_AnimComplete = false;
 		if (m_frame > m_frameLimit) m_frame = 0;
 	}
 }

@@ -16,6 +16,12 @@ public:
 	Inputbox(const sf::Vector2f& size = sf::Vector2f(0,0));
 
 	////////////////////////////////////////////////////////////
+	/// \brief Default virtual destrcutor
+	///
+	////////////////////////////////////////////////////////////
+	virtual ~Inputbox();
+
+	////////////////////////////////////////////////////////////
 	/// \brief check whether object is in input mode
 	///
 	/// \return true if in input mode, false otherwise
@@ -59,5 +65,8 @@ private:
 	mutable int m_blink_counter;		/// < blink oscillator from -blink limit to +blink limit
 	int m_blink_limit = 40;				/// < blink time limit, total time taken by blink is 2*blink limit
 };
+
+
+typedef std::unique_ptr<zui::Inputbox> Inputbox_ptr;
 
 } // namespace zui

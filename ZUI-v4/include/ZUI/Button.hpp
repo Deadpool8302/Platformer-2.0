@@ -13,6 +13,12 @@ public:
 	Button();
 
 	////////////////////////////////////////////////////////////
+	/// \brief Default virtual destrcutor
+	///
+	////////////////////////////////////////////////////////////
+	virtual ~Button();
+
+	////////////////////////////////////////////////////////////
 	/// \brief Set the number of points of the polygon
 	///		   count must be greater than 2 to define a valid shape.
 	///
@@ -326,5 +332,7 @@ private:
 	
 	sf::ConvexShape m_shape;							/// < shape of the button
 };
+
+typedef std::unique_ptr<zui::Button> Button_ptr;
 
 } // namespace zui

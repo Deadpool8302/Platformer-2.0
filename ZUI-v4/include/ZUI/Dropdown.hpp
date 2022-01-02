@@ -30,6 +30,12 @@ public:
 	Dropdown(const sf::Vector2f& headerSize, float itemHeight, int itemLimit = 3);
 
 	////////////////////////////////////////////////////////////
+	/// \brief Default virtual destrcutor
+	///
+	////////////////////////////////////////////////////////////
+	virtual ~Dropdown();
+
+	////////////////////////////////////////////////////////////
 	/// \brief Set the size of the header
 	/// 
 	/// \param headerSize -> New size of header
@@ -211,6 +217,22 @@ public:
 	void addItem(Button& button);
 
 	////////////////////////////////////////////////////////////
+	/// \brief add an item to the object to the last
+	/// 
+	/// \param textbox -> textbox / TextButton object to add
+	///
+	////////////////////////////////////////////////////////////
+	void addItem(Textbox* textbox);
+
+	////////////////////////////////////////////////////////////
+	/// \brief add an item to the object to the last
+	/// 
+	/// \param button -> button object to add
+	///
+	////////////////////////////////////////////////////////////
+	void addItem(Button* button);
+
+	////////////////////////////////////////////////////////////
 	/// \brief insert an item into the object
 	/// 
 	/// \param where -> index of the item to insert
@@ -227,6 +249,25 @@ public:
 	///
 	////////////////////////////////////////////////////////////
 	void insertItem(int where, Button& button);
+
+	////////////////////////////////////////////////////////////
+	/// \brief insert an item into the object
+	/// 
+	/// \param where -> index of the item to insert
+	/// \param textbox -> textbox / TextButton object to insert
+	///
+	////////////////////////////////////////////////////////////
+	void insertItem(int where, Textbox* textbox);
+
+	////////////////////////////////////////////////////////////
+	/// \brief insert an item into the object
+	/// 
+	/// \param where -> index of the item to insert
+	/// \param textbox -> button object to insert
+	///
+	////////////////////////////////////////////////////////////
+	void insertItem(int where, Button* button);
+
 
 	////////////////////////////////////////////////////////////
 	/// \brief erase an item from object
@@ -336,7 +377,7 @@ private:
 	////////////////////////////////////////////////////////////
 
 private:
-	std::vector<unsigned int> m_itemIDs;	/// < list of ids of all connected items
+	std::vector<uint64_t> m_itemIDs;	/// < list of ids of all connected items
 	int m_itemLimit;						/// < limit of items to display at once
 	int m_itemCount;						/// < total number of items
 	sf::Vector2f m_itemSize;				/// < size of one item
@@ -346,5 +387,9 @@ private:
 
 	Page m_page;							/// < page to connect items
 };
+
+
+typedef std::unique_ptr<zui::Dropdown> Dropdown_ptr;
+
 
 } // namespace zui

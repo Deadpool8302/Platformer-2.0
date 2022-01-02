@@ -90,7 +90,7 @@ public:
     /// \param size -> New character size, in pixels
     ///
     ////////////////////////////////////////////////////////////
-    void setCharacterSize(unsigned int size);
+    void setCharacterSize(uint64_t size);
 
     ////////////////////////////////////////////////////////////
     /// \brief Set the line spacing factor
@@ -263,7 +263,7 @@ public:
     /// \return Size of the characters, in pixels
     ///
     ////////////////////////////////////////////////////////////
-    unsigned int getCharacterSize() const;
+    uint64_t getCharacterSize() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the size of the letter spacing factor
@@ -460,5 +460,9 @@ protected:
     mutable sf::Text m_text;        /// < text object of textbox, mutable for cursor updating
     TextAlign m_alignment;          /// < alignment of text with the box
 };
+
+
+typedef std::unique_ptr<zui::Textbox> Textbox_ptr;
+
 
 } // namespace zui

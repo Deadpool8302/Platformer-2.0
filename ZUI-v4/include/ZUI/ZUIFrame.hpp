@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <functional>
 #include <vector>
+#include <memory>
 
 namespace zui {
 
@@ -20,7 +21,7 @@ constexpr int ZUI_ID_BUTTON =		5;
 constexpr int ZUI_ID_TEXTBUTTON =	4;
 constexpr int ZUI_ID_SCROLL =		3;
 constexpr int ZUI_ID_DROPDOWN =		2;
-constexpr int ZUI_ID_PAGE =			1; 
+constexpr int ZUI_ID_PAGE =			1;
 
 class Functional {
 public:
@@ -64,6 +65,12 @@ public:
 	////////////////////////////////////////////////////////////
 	virtual sf::FloatRect getLocalBounds() const = 0;
 
+	////////////////////////////////////////////////////////////
+	/// \brief Read Events from event
+	/// 
+	/// \param event -> polled event of a window 
+	/// 
+	////////////////////////////////////////////////////////////
 	virtual bool pollEvents(sf::Event event) = 0;
 
 
@@ -107,7 +114,7 @@ protected:
 	/// \param class_id -> Globally defined ZUI CLASS IDs
 	/// 
 	////////////////////////////////////////////////////////////
-	Entity(unsigned int class_id);
+	Entity(uint64_t class_id);
 
 	///////////////////////////////////////////////////////////
 	/// \brief Protected Copy Constructor, Sets the unique ID of the object
@@ -133,7 +140,7 @@ public:
 	/// \return Unique ID of the object
 	/// 
 	////////////////////////////////////////////////////////////
-	unsigned int getID() const;
+	uint64_t getID() const;
 
 	////////////////////////////////////////////////////////////
 	/// \brief Get the unique Class ID of the object
@@ -141,7 +148,7 @@ public:
 	/// \return Unique Class ID of the object
 	/// 
 	////////////////////////////////////////////////////////////
-	static unsigned int getClassID(const Entity& entity);
+	static uint64_t getClassID(const Entity& entity);
 
 	////////////////////////////////////////////////////////////
 	/// \brief Get the Frame attached to object
@@ -255,6 +262,7 @@ public:
 		MOUSEHOVER,		/// < If Mouse button has mouse over it
 	};
 
+
 private:
 
 	////////////////////////////////////////////////////////////
@@ -289,13 +297,33 @@ protected:
 	std::function<void()> action;							/// < Job of the entity upon reaching specified event state 
 
 private:
-	unsigned int m_id;										/// < Unique id for every entity
-	bool m_active;											/// < State of the entity
-	Functional* m_functionalParent;							/// < Frame attached to entity, can be nullptr
+	uint64_t m_id;										/// < Unique id for every entity
+	bool m_active;										/// < State of the entity
+	Functional* m_functionalParent;						/// < Frame attached to entity, can be nullptr
 
-	static unsigned int item_count;							/// < Strictly increasing count of all constructed entities, Used for generating Ids, \
+	static uint64_t item_count;							/// < Strictly increasing count of all constructed entities, Used for generating Ids, \
 																  makes up for the 24 least significant bits of Id
 };
+
+
+template<typename T>
+std::unique_ptr<T> create()
+{
+	return std::make_unique<T>();
+}
+
+template<typename T>
+std::unique_ptr<T> copy(T& copy)
+{
+	return std::make_unique<T>(copy);
+}
+
+template<typename T>
+std::unique_ptr<T> copy(std::unique_ptr<T>& copy)
+{
+	return std::make_unique<T>(*copy);
+}
+
 
 
 class Frame : Functional {
@@ -330,28 +358,29 @@ public:
 	void addEntity(Entity& entity);
 
 	////////////////////////////////////////////////////////////
+	/// \brief attach an entity to object
+	///
+	////////////////////////////////////////////////////////////
+	void addEntity(Entity* entity);
+
+	////////////////////////////////////////////////////////////
 	/// \brief detach an entity to object
 	///
 	////////////////////////////////////////////////////////////
 	void removeEntity(Entity& entity);
 
 	////////////////////////////////////////////////////////////
+	/// \brief detach an entity to object
+	///
+	////////////////////////////////////////////////////////////
+	void removeEntity(Entity* entity);
+
+	////////////////////////////////////////////////////////////
 	/// \brief detach an entity to object by its unique Id
 	///
 	////////////////////////////////////////////////////////////
-	void removeEntity(unsigned int id);
+	void removeEntity(uint64_t id);
 
-	////////////////////////////////////////////////////////////
-	/// \brief Set the global string name of the entity
-	///
-	////////////////////////////////////////////////////////////
-	static void setName(const Entity& entity, const std::string& name);
-
-	////////////////////////////////////////////////////////////
-	/// \brief Remove name from any entity if the name exists
-	///
-	////////////////////////////////////////////////////////////
-	static void removeName(const std::string& name);
 
 	///////////////////////////////////////////////////////////
 	/// \brief Add entity to key press navigation order 
@@ -368,30 +397,7 @@ public:
 	/// \return Pointer to Entity
 	///
 	////////////////////////////////////////////////////////////
-	Entity* getByID(unsigned int id) const;
-
-	////////////////////////////////////////////////////////////
-	/// \brief Get the entity attached to the object by its name if the name exists
-	/// 
-	/// \return Pointer to Entity
-	///
-	////////////////////////////////////////////////////////////
-	Entity* getByName(const std::string& name) const;
-
-	////////////////////////////////////////////////////////////
-	/// \brief Get the entity attached to the object by Id
-	/// 
-	/// \return Pointer to Entity
-	///
-	////////////////////////////////////////////////////////////
-	static unsigned int getIDByName(const std::string& name);
-
-	/// \brief Get the name of the entity by its Id
-	/// 
-	/// \return The name is it exists else empty string
-	///
-	////////////////////////////////////////////////////////////
-	static std::string getName(unsigned int id);
+	Entity* getByID(uint64_t id) const;
 
 	////////////////////////////////////////////////////////////
 	/// \brief Get the mouse position with respect to the current window
@@ -503,11 +509,9 @@ private:
 	sf::Vector2f m_lastMousePos;										/// < last mouse Position on the current window
 	int m_navigator;													/// < iterator for navigation through key press
 
-	std::map<unsigned int, Entity*> m_entityMap;						/// < maps zui Ids to their respective entities
-	std::unordered_map<unsigned int, Functional*> m_functionalParents;	/// < maps zui Ids of functional parents to their respective entities (also in entityMap)
+	std::map<uint64_t, Entity*> m_entityMap;							/// < maps zui Ids to their respective entities
+	std::unordered_map<uint64_t, Functional*> m_functionalParents;		/// < maps zui Ids of functional parents to their respective entities (also in entityMap)
 	std::vector<Entity*> m_navigationOrder;								/// < key press navigation order of entities
-
-	static std::unordered_map<std::string, unsigned int> m_nameMap;		/// < maps from names to the zui Id of their respective entities, Single Map for all Frame objects
 };
 
 } // namespace zui

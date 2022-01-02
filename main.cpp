@@ -1,3 +1,4 @@
+#include<chrono>
 #include<SFML/Graphics.hpp>
 #include"data/src/App.hpp"
 
@@ -6,6 +7,8 @@ int main() {
 	while (app.isRunning())
 	{
 		app.update();
-		app.render(); 
+		app.render();
 	}
 }
+
+

@@ -66,3 +66,54 @@ class Collision:
 	floatrect hitbox
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//sf::Vector2f dis;
+
+	{/*
+		addForce(moveDir * sf::Vector2f(5, 5));
+
+		// reinitialise acceleration
+		m_acc.x = 0;
+		m_acc.y = m_gravity.y;
+
+		// add force, reinitialise force
+		m_acc += m_force;
+		m_force = { 0, 0 };
+
+		{ // stop oscillations
+			sf::Vector2f initAccDir = unitVec(m_acc);
+
+			m_acc.x -= m_vel.x * m_friction.x; // apply friction wrt to velocity in opposite direction to accelreation
+
+			sf::Vector2f finAccDir = unitVec(m_acc);
+			if (initAccDir.x * finAccDir.x < 0)m_acc.x = 0;
+		}
+
+		sf::Vector2f velDir(unitVec(m_vel)); // direction of velocity
+		m_vel.y = velDir.y * std::min(abs(m_vel.y), m_max_vel.y); // limit velocity to maximum
+		m_vel.x = velDir.x * std::min(abs(m_vel.x), m_max_vel.x); // limit velocity to maximum
+
+		dis = m_vel + (m_acc * dt * dt) / 2.0f; // calculate displacement
+
+		if (abs(m_vel.x) < 0.015) m_vel.x = 0;
+		if (abs(m_vel.y) < 0.015) m_vel.y = 0;
+
+		// new velocity is zero but state was RUNNING
+		if (abs(m_vel.x) < 0.1 && m_currState != IDLE) {
+			m_currAnim.setTextureRect_allFrames(sf::IntRect(0, 0, m_ninja.getSize().x, m_ninja.getSize().y / 2));
+			m_currAnim.reset();
+			m_currState = IDLE;
+		}
+		// new velocity is non zero but state was IDLE
+		else if (abs(m_vel.x) >= 0.1 && m_currState != RUNNING) {
+			m_currAnim.setTextureRect_allFrames(sf::IntRect(0, m_ninja.getSize().y / 2, m_ninja.getSize().x, m_ninja.getSize().y / 2));
+			m_currAnim.reset();
+			m_currState = RUNNING;
+			m_currAnim.setInverted(m_vel.x < 0, 0);
+		}
+
+		m_vel += m_acc * dt; // calculate velocity for next frame
+	*/} // old code
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////

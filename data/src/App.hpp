@@ -1,11 +1,13 @@
 #pragma once
 #include<SFML/Graphics.hpp>
+#include<SFML/Audio.hpp>
+#include"Game.hpp"
+#include"Platform.hpp"
+#include<ZUI.hpp>
 #include<vector>
 #include<iostream>
 #include<unordered_map>
 #include<map>
-#include"Game.hpp"
-#include<ZUI.hpp>
 #include<fstream>
 #include<sstream>
 
@@ -82,10 +84,14 @@ private:
 	sf::Clock m_clock;					/// < main clock used for updating relative to time
 
 	AppState m_state;
+	AppState m_prevState;
+
+	sf::Music m_game_music;
+	float m_musicVolume;
+	bool m_mute;
 
 	sf::Font m_font;
-
-	float m_musicVolume;
+	sf::Font m_font_level;
 
 	zui::Frame m_frame_mainMenu;
 	sf::Sprite m_bgImg_mainMenu;
@@ -96,31 +102,37 @@ private:
 	zui::Frame m_frame_levelMenu;
 	zui::Frame m_frame_optionsMenu;
 
+	std::unordered_map<std::string, sf::Texture> m_button_textures;
+	sf::Texture m_vols[2];
+
+	zui::TextButton_ptr temp;
+
 	// Main Menu Buttons
-	zui::TextButton m_button_start;
-	zui::TextButton m_button_level;
-	zui::TextButton m_button_options;
-	zui::TextButton m_button_exit;
-
-	sf::Texture test;
-
+	zui::TextButton_ptr m_button_start;
+	zui::TextButton_ptr m_button_level;
+	zui::TextButton_ptr m_button_options;
+	zui::TextButton_ptr m_button_exit;
+				   
 	// Pause Menu Buttons
-	zui::TextButton m_button_resume;
-	zui::TextButton m_button_restart;
-	zui::TextButton m_button_menu;
+	zui::TextButton_ptr m_button_resume;
+	zui::TextButton_ptr m_button_restart;	
+	zui::TextButton_ptr m_button_menu;
 
 	// Options Menu Buttons
-	zui::TextButton m_button_vol;
-	zui::Slider m_slider_vol;
+	zui::TextButton_ptr m_button_vol;
+	zui::Slider_ptr m_slider_vol;
 
-	zui::TextButton m_button_back;
-	zui::Textbox m_textbox_control_left;
-	zui::Textbox m_textbox_control_right;
-	zui::Inputbox m_inputbox_control_left;
-	zui::Inputbox m_inputbox_control_right;
+	zui::TextButton_ptr m_button_back;
+	zui::Textbox_ptr m_textbox_control_left;
+	zui::Textbox_ptr m_textbox_control_right;
+	zui::Inputbox_ptr m_inputbox_control_left;
+	zui::Inputbox_ptr m_inputbox_control_right;
 
-	zui::Textbox m_textbox_control_jump; // temp
+	zui::Textbox_ptr m_textbox_control_jump; // temp
 
-	zui::TextButton m_button_save;
+	zui::TextButton_ptr m_button_save;
+
+	// Level menu Buttons
+	std::vector<zui::TextButton_ptr> m_levels;
 
 };

@@ -15,6 +15,12 @@ public:
 	Slider(const sf::Vector2f& size = sf::Vector2f(0, 0));
 
 	////////////////////////////////////////////////////////////
+	/// \brief Default virtual destrcutor
+	///
+	////////////////////////////////////////////////////////////
+	virtual ~Slider();
+
+	////////////////////////////////////////////////////////////
 	/// \brief Set pointer to variable and its limit
 	/// 
 	/// \param var -> refrence to variable
@@ -113,5 +119,9 @@ private:
 	float* m_variable;                      /// < pointer to variable whose value needs to be altered
 	float m_limits[2];						/// < lower and upper limit of the variable
 };
+
+
+typedef std::unique_ptr<zui::Slider> Slider_ptr;
+
 
 } // namespace zui

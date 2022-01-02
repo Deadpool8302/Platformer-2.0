@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Player.hpp"
+#include "Enemy.hpp"
+#include "Utility.hpp"
 #include <array>
 #include <iostream>
 #include <algorithm>
@@ -25,9 +27,15 @@ public:
 	void loadSameLevel();
 	void loadNextLevel();
 
+	int getTotalLevels();
+
 	bool pollEvents(const sf::Event& event);
 	void update(float dt);
 	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
+
+	sf::View m_camView;
+
+	bool isGameOver(); // temp
 
 private:
 	void loadTextures();
@@ -37,7 +45,7 @@ private:
 
 	bool m_paused, m_over;
 	int m_curLevel; 
-	const int m_totalLevels = 1;
+	int m_totalLevels;
 	sf::Vector2f m_lvlSize;
 	sf::Vector2f m_winSize;
 	const sf::Vector2f m_tileSize = { 32, 32 };
@@ -47,5 +55,6 @@ private:
 
 	Player m_player;
 
+	std::vector<sf::Texture> m_allTextures;
 	std::array<sf::Texture, 12> m_tile_textures;
 };

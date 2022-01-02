@@ -1,8 +1,10 @@
 #include "Platform.hpp"
 
 #include "Utility.hpp"
+#include "Enemy.hpp"
 
 std::vector<std::unique_ptr<Platform>> Platform::m_platforms;
+std::vector<std::unique_ptr<Platform>> Platform::m_redPlatforms;
 
 Platform::Platform()
 {
@@ -125,14 +127,26 @@ void addPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, con
 	Platform::m_platforms.back()->loadTileTextures(tileCount, tileSize, tileTextures);
 }
 
+void addRedPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const std::array<sf::Texture, 12>& tileTextures) {
+	Platform::m_redPlatforms.push_back(std::make_unique<Platform>());
+	Platform::m_redPlatforms.back()->setSize(tileCount * tileSize);
+	Platform::m_redPlatforms.back()->setPosition(tilePos * tileSize);
+	
+	Platform::m_redPlatforms.back()->loadTileTextures(tileCount, tileSize, tileTextures);
+}
+
 void removeAllPlatforms()
 {
 	Platform::m_platforms.clear();
+	Platform::m_redPlatforms.clear();
 }
 
 void drawAllPlatforms(sf::RenderTarget& target, sf::RenderStates states)
 {
 	for(int i = 0; i < Platform::m_platforms.size(); i++){
 		Platform::m_platforms[i]->draw(target, states);
+	}
+	for (int i = 0; i < Platform::m_redPlatforms.size(); i++) {
+		Platform::m_redPlatforms[i]->draw(target, states);
 	}
 }

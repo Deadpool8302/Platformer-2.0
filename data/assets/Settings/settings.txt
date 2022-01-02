@@ -1,2 +1,3 @@
-Left		A
-Right		D 
+Left D
+Right A
+TotalLevels 11

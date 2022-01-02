@@ -38,6 +38,8 @@ public:
 	////////////////////////////////////////////////////////////
 	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
 
+	static std::vector<std::unique_ptr<Platform>> m_redPlatforms;
+
 private:
 	/////////////////////////////////////////////////
 	/// \brief set the size of the hitbox of the object
@@ -59,6 +61,10 @@ private:
 
 	// to access m_platforms
 	friend void addPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const std::array<sf::Texture, 12>& tileTextures);
+	
+	// temp
+	friend void addRedPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const std::array<sf::Texture, 12>& tileTextures);
+
 	friend void drawAllPlatforms(sf::RenderTarget& target, sf::RenderStates states);
 	friend void removeAllPlatforms();
 
@@ -82,6 +88,9 @@ private:
 ///
 /////////////////////////////////////////////////
 void addPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const std::array<sf::Texture, 12>& tileTextures);
+
+// temp
+void addRedPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const std::array<sf::Texture, 12>& tileTextures);
 
 /////////////////////////////////////////////////
 /// \brief clear the set of all platforms 

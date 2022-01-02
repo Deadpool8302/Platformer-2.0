@@ -14,6 +14,9 @@ public:
 	void setInverted(bool in_x_dir, bool in_y_dir);
 	sf::Vector2<bool> getInverted() const;
 
+	int getCurrentFrame() const;
+	bool isAnimationComp() const;
+
 	void animate(float dt);
 	void reset();
 
@@ -28,5 +31,6 @@ private:
 	float m_animSpeed;
 	float m_count;
 
+	bool m_AnimComplete;
 	sf::Vector2<bool> m_xyFlip;
 };
