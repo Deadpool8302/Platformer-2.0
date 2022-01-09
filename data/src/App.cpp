@@ -242,6 +242,7 @@ void App::setupGUI()
 	m_button_menu->setAction([this]()
 		{
 			loadAppState(MAIN_MENU);
+			m_game.loadSameLevel();
 		}
 	);
 
@@ -473,9 +474,12 @@ void App::update()
 	case OPTIONS_MENU:		m_frame_optionsMenu.update(); break;
 	}
 
-	if (m_game.isGameOver()) {
+	if (m_game.isGameOver() && m_state != GAME_OVER_MENU) {
 		m_game.update(dt);
 		loadAppState(GAME_OVER_MENU);
+	}
+	else {
+		
 	}
 
 	m_game_music.setVolume(m_musicVolume);

@@ -1,14 +1,15 @@
 #include "Platform.hpp"
-
 #include "Utility.hpp"
 #include "Enemy.hpp"
 
 std::vector<std::unique_ptr<Platform>> Platform::m_platforms;
-std::vector<std::unique_ptr<Platform>> Platform::m_redPlatforms;
+std::vector<std::unique_ptr<Platform>> Platform::m_movingPlatforms;
 
 Platform::Platform()
 {
-	
+	m_distance = 0;
+	m_speed = sf::Vector2f(0, 0);
+	m_moveDir = 0;
 }
 
 Platform::~Platform()
@@ -27,7 +28,7 @@ sf::Vector2f Platform::getSize() const
 	return { rect.width, rect.height };
 }
 
-void Platform::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Platform::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
 	states.transform *= getTransform();
 	for(int i = 0; i < m_imgs.size(); i++){
@@ -105,7 +106,7 @@ void Platform::loadTileTextures(const sf::Vector2i& tileCount, const sf::Vector2
 		
 		loadTileMultiple({0, 1}, { 1, tileCount.y - 2 }, tileTextures[3]); // left edge
 
-		loadTileMultiple({1, 1}, { tileCount.x - 2, tileCount.y - 2 }, tileTextures[4]);// center
+		loadTileMultiple({1, 1}, { tileCount.x - 2, tileCount.y - 2 }, tileTextures[4]); // center
 
 		loadTileMultiple({tileCount.x - 1, 1}, { 1, tileCount.y - 2 }, tileTextures[5]); // right edge
 
@@ -123,22 +124,47 @@ void addPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, con
 	Platform::m_platforms.push_back(std::make_unique<Platform>());
 	Platform::m_platforms.back()->setSize(tileCount * tileSize);
 	Platform::m_platforms.back()->setPosition(tilePos * tileSize);
-
+	Platform::m_platforms.back()->setID(Collidable::PLATFORM);
 	Platform::m_platforms.back()->loadTileTextures(tileCount, tileSize, tileTextures);
 }
 
-void addRedPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const std::array<sf::Texture, 12>& tileTextures) {
-	Platform::m_redPlatforms.push_back(std::make_unique<Platform>());
-	Platform::m_redPlatforms.back()->setSize(tileCount * tileSize);
-	Platform::m_redPlatforms.back()->setPosition(tilePos * tileSize);
-	
-	Platform::m_redPlatforms.back()->loadTileTextures(tileCount, tileSize, tileTextures);
+void addMovingPlatform(const sf::Vector2i& tilePos, const sf::Vector2i& tileCount, const sf::Vector2f& tileSize, const double distance, const sf::Vector2f& speed, const int movingDir, const std::array<sf::Texture, 12>& tileTextures)
+{
+	Platform::m_movingPlatforms.push_back(std::make_unique<Platform>());
+	Platform::m_movingPlatforms.back()->setSize(tileCount * tileSize);
+	Platform::m_movingPlatforms.back()->setPosition(tilePos * tileSize);
+	Platform::m_movingPlatforms.back()->m_initialPos = sf::Vector2f({ tilePos * tileSize });
+	Platform::m_movingPlatforms.back()->loadTileTextures(tileCount, tileSize, tileTextures);
+	Platform::m_movingPlatforms.back()->m_distance = distance * tileSize.x;
+	Platform::m_movingPlatforms.back()->m_speed = speed;
+	Platform::m_movingPlatforms.back()->m_moveDir = movingDir;
+	Platform::m_movingPlatforms.back()->setID(Collidable::MOVING_PlAT); 
+
+}
+void updateAllMovingPlatforms(float dt)
+{
+	for (int i = 0; i < Platform::m_movingPlatforms.size(); i++) {
+		Platform::m_movingPlatforms[i]->updateMovingPlatform(dt);
+	}
+}
+
+void Platform::updateMovingPlatform(float dt)
+{
+	move(this->m_speed.x * m_moveDir, this->m_speed.y * m_moveDir);
+	double x, y, x1, y1;
+	x = m_initialPos.x;
+	y = m_initialPos.y;
+	x1 = getPosition().x;
+	y1 = getPosition().y;
+	double dis = std::sqrt((x1 - x) * (x1 - x) + (y1 - y) * (y1 - y));
+	if (dis >= m_distance) m_moveDir *= -1;
+	else if (dis <= 0) m_moveDir *= -1;
 }
 
 void removeAllPlatforms()
 {
 	Platform::m_platforms.clear();
-	Platform::m_redPlatforms.clear();
+	Platform::m_movingPlatforms.clear();
 }
 
 void drawAllPlatforms(sf::RenderTarget& target, sf::RenderStates states)
@@ -146,7 +172,7 @@ void drawAllPlatforms(sf::RenderTarget& target, sf::RenderStates states)
 	for(int i = 0; i < Platform::m_platforms.size(); i++){
 		Platform::m_platforms[i]->draw(target, states);
 	}
-	for (int i = 0; i < Platform::m_redPlatforms.size(); i++) {
-		Platform::m_redPlatforms[i]->draw(target, states);
+	for (int i = 0; i < Platform::m_movingPlatforms.size(); i++) {
+		Platform::m_movingPlatforms[i]->draw(target, states);
 	}
 }

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Collision.hpp"
 #include "Platform.hpp"
+#include "Obstacle.hpp"
 #include "Animation.hpp"
 #include "Utility.hpp"
 #include <vector>
@@ -13,21 +14,22 @@ private:
 	sf::RectangleShape m_shape;   // temporary 
 
 	bool m_inView;
-	bool is_dead;
+	bool m_isDying;
 
 	sf::Vector2f m_vel;
 	const float m_friction = 0.9975f;
 	const float m_gravity = 0.002f;
 	int moveDir;
-
+	
 	Animation m_currAnim;
 	Animation m_deadAnim;
-
+	
 	friend void addEnemy(sf::Vector2f position, sf::Texture& texture, sf::Texture& deadTexture);
 	friend void drawAllEnemies(sf::RenderTarget& target, sf::RenderStates states);
 	friend void removeAllEnemies();
 	friend void updateAllEnemies(float dt);
 	friend bool areEnemiesColliding(const sf::FloatRect& player);
+	friend void resetAllEnemies();
 
 public:
 	Enemy(sf::Texture& m_texture, sf::Texture& m_dead);
@@ -37,7 +39,7 @@ public:
 
 	void die();
 	void update(float dt);
-	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;  
+	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default);  
 
 	sf::FloatRect getLocalBounds() const;
 	sf::FloatRect getGlobalBounds() const;
@@ -53,3 +55,4 @@ void removeAllEnemies();
 void addEnemy(sf::Vector2f position, sf::Texture& texture, sf::Texture& deadTexture);
 void updateAllEnemies(float dt);
 bool areEnemiesColliding(const sf::FloatRect& player);
+void resetAllEnemies();

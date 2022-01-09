@@ -157,6 +157,7 @@
     <ClCompile Include="data\src\Collision.cpp" />
     <ClCompile Include="data\src\Enemy.cpp" />
     <ClCompile Include="data\src\Game.cpp" />
+    <ClCompile Include="data\src\Obstacle.cpp" />
     <ClCompile Include="data\src\Platform.cpp" />
     <ClCompile Include="data\src\Player.cpp" />
     <ClCompile Include="main.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="data\src\Collision.hpp" />
     <ClInclude Include="data\src\Enemy.hpp" />
     <ClInclude Include="data\src\Game.hpp" />
+    <ClInclude Include="data\src\Obstacle.hpp" />
     <ClInclude Include="data\src\Platform.hpp" />
     <ClInclude Include="data\src\Player.hpp" />
     <ClInclude Include="data\src\Utility.hpp" />

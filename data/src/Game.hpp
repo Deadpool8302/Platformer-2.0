@@ -20,8 +20,6 @@ public:
 	void setPaused(bool pause);
 	bool isPaused() const;
 
-	bool isOver() const;
-
 	void start();
 	void loadLevel(int level);
 	void loadSameLevel();
@@ -31,7 +29,8 @@ public:
 
 	bool pollEvents(const sf::Event& event);
 	void update(float dt);
-	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
+	void updateView();
+	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default);
 
 	sf::View m_camView;
 
@@ -43,7 +42,7 @@ private:
 	
 private:
 
-	bool m_paused, m_over;
+	bool m_paused;
 	int m_curLevel; 
 	int m_totalLevels;
 	sf::Vector2f m_lvlSize;

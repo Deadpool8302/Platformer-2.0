@@ -75,9 +75,10 @@ void Animation::reset()
 	m_frame = 0;
 	m_count = 0.f;
 	m_img.setTextureRect({ (m_frameRect.left + m_frameSize.x * m_frame) % m_frameRect.width, m_frameRect.top, m_frameSize.x, m_frameSize.y });
+	m_AnimComplete = false;
 }
 
-void Animation::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Animation::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
 	states.transform *= getTransform();
 	target.draw(m_img, states);

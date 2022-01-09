@@ -6,7 +6,7 @@ std::vector<std::unique_ptr<Enemy>> Enemy::m_enemies;
 sf::FloatRect Enemy::m_viewBox;
 
 Enemy::Enemy(sf::Texture& m_enemy, sf::Texture& deadEnemy) :
-	is_dead(false),
+	m_isDying(false),
 	m_vel(0.1, 0),
 	moveDir(-1),
 	m_inView(false)
@@ -45,7 +45,7 @@ Enemy::~Enemy()
 
 bool Enemy::get_dead() const
 {
-	return is_dead;
+	return m_isDying;
 }
 
 void addEnemy(sf::Vector2f position, sf::Texture& texture, sf::Texture& deadTexture)
@@ -57,7 +57,8 @@ void addEnemy(sf::Vector2f position, sf::Texture& texture, sf::Texture& deadText
 void drawAllEnemies(sf::RenderTarget& target, sf::RenderStates states)
 {
 	for (int i = 0; i < Enemy::m_enemies.size(); i++) {
-		if (Enemy::m_enemies[i]->m_inView == false) Enemy::m_enemies[i]->m_inView = Enemy::m_viewBox.contains(Enemy::m_enemies[i]->getPosition());
+		if (Enemy::m_enemies[i]->m_inView == false) 
+			Enemy::m_enemies[i]->m_inView = Enemy::m_viewBox.contains(Enemy::m_enemies[i]->getPosition());
 		if(Enemy::m_enemies[i]->m_inView) Enemy::m_enemies[i]->draw(target, states);
 	}
 }
@@ -70,7 +71,8 @@ void removeAllEnemies()
 void updateAllEnemies(float dt)
 { 
 	for (int i = 0; i < Enemy::m_enemies.size(); i++) {
-		if(Enemy::m_enemies[i]->m_inView) Enemy::m_enemies[i]->update(dt);
+		if(Enemy::m_enemies[i]->m_inView) 
+			Enemy::m_enemies[i]->update(dt);
 	}
 }
 
@@ -82,11 +84,18 @@ bool areEnemiesColliding(const sf::FloatRect& player)
 	return false;
 }
 
+void resetAllEnemies()
+{
+	for (int i = 0; i < Enemy::m_enemies.size(); i++) {
+		Enemy::Enemy::m_enemies[i]->m_inView = false;
+		Enemy::Enemy::m_enemies[i]->m_isDying = false;
+	}
+}
+
 void Enemy::die()
 {
-	is_dead = true;
-	bool inverted = m_currAnim.getInverted().x;
-	m_deadAnim.setInverted(inverted, false);
+	m_isDying = true; 
+	m_deadAnim.setInverted(m_currAnim.getInverted().x , false);
 }
 
 void Enemy::update(float dt)
@@ -95,17 +104,10 @@ void Enemy::update(float dt)
 	this->m_vel.y += this->m_gravity;
 	this->m_vel.y *= this->m_friction;
 	
-	if (this->is_dead) {
+	if (this->m_isDying) {
 		m_vel.x = 0;
 	}
 	move(this->m_vel.x * moveDir, this->m_vel.y);
-
-	// checking collison for red platforms 
-	for (auto it = Platform::m_redPlatforms.begin(); it != Platform::m_redPlatforms.end(); it++) {
-		if (areColliding(getGlobalBounds(), **it)) {
-			die();
-		}
-	}
 
 	// check collison 
 	move(-this->m_vel.x * moveDir, -this->m_vel.y);
@@ -114,14 +116,19 @@ void Enemy::update(float dt)
 			move(this->m_vel.x * moveDir, this->m_vel.y);
 			bool haveCollided = areColliding(getGlobalBounds(), **it);
 			move(-this->m_vel.x * moveDir, -this->m_vel.y);
-			if (!haveCollided)continue;
+			if (!haveCollided) {
+				continue;
+			}
+			else {
+				if ((*it)->getID() == Collidable::OBSTACLE) die();
+			}
 
 			sf::FloatRect plat = (*it)->getGlobalBounds();
 			sf::FloatRect playerBox(getGlobalBounds());
 
 			// 0-top, 1-right, 2-bottom, 3-left
 			enum Region { TOP, RIGHT, BOTTOM, LEFT } region;
-			//region = BOTTOM;
+			region = BOTTOM;
 
 			if (playerBox.top >= plat.top + plat.height)
 			{
@@ -193,20 +200,20 @@ void Enemy::update(float dt)
 
 	move(this->m_vel.x * moveDir, this->m_vel.y);
 
-	if (this->is_dead) m_deadAnim.animate(dt);
+	if (this->m_isDying) m_deadAnim.animate(dt);
 	else m_currAnim.animate(dt);
 }
 
-void Enemy::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Enemy::draw(sf::RenderTarget& target, sf::RenderStates states) 
 {
 	states.transform *= getTransform();
-	if (is_dead && m_deadAnim.isAnimationComp()) {
+	if (m_isDying && m_deadAnim.isAnimationComp()) {
 		for (int i = 0; i < m_enemies.size(); i++) {
 			if (m_enemies[i].get() == this) m_enemies.erase(m_enemies.begin() + i);
 		}
 	}
 	else {
-		if (is_dead) m_deadAnim.draw(target, states);
+		if (m_isDying) m_deadAnim.draw(target, states);
 		else m_currAnim.draw(target, states);
 		//target.draw(m_shape, states);
 	}

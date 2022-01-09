@@ -46,11 +46,11 @@ void Game::setup(const sf::Vector2f& winSize)
 
 void Game::reset()
 {
-	m_over = false;
 	m_paused = false;
 	m_player.reset();
 
 	removeAllPlatforms();
+	removeAllObstacles();
 	removeAllEnemies();
 }
 
@@ -62,11 +62,6 @@ void Game::setPaused(bool pause)
 bool Game::isPaused() const
 {
     return m_paused;
-}
-
-bool Game::isOver() const
-{
-	return m_over;
 }
 
 void Game::loadTextures()
@@ -121,6 +116,12 @@ void Game::loadLevel(int level)
 
 			addPlatform({ x, y }, { w, h }, m_tileSize, m_tile_textures);
 		}
+		else if (type == 'm') {
+			int x, y, w, h, d1;
+			float d, sx, sy;
+			line >> x >> y >> w >> h >> d >> sx >> sy >> d1;
+			addMovingPlatform({ x,y }, { w,h }, m_tileSize, d, { sx, sy }, d1, m_tile_textures);
+		}
 		else if (type == 'p') {
 			int x, y;
 			line >> x >> y;
@@ -129,7 +130,7 @@ void Game::loadLevel(int level)
 		else if (type == 'r') {
 			int x, y, w, h;
 			line >> x >> y >> w >> h;
-			addRedPlatform({ x,y }, { w,h }, m_tileSize, m_tile_textures);
+			addObstacles({ x,y }, { w,h }, m_tileSize);
 		}
 		else if (type == 'e') {
 			int x, y;
@@ -139,6 +140,7 @@ void Game::loadLevel(int level)
 	}
 
 	file.close();
+	updateView();
 }
 
 void Game::loadNextLevel()
@@ -162,7 +164,7 @@ bool Game::pollEvents(const sf::Event& event)
 {
 	if(event.type == sf::Event::KeyPressed){
 		if(event.key.code == sf::Keyboard::Space){
-			if(m_player.isGrounded())m_player.jump();
+			if (m_player.isGrounded() && !m_player.isPlayerDead()) m_player.jump();
 		}
 	}
 	if (event.type == sf::Event::KeyReleased) {
@@ -174,7 +176,13 @@ bool Game::pollEvents(const sf::Event& event)
 void Game::update(float dt)
 {
 	m_player.update(dt);
+	updateView();
+	updateAllEnemies(dt); 
+	updateAllMovingPlatforms(dt);
+}
 
+void Game::updateView()
+{
 	sf::Vector2f camCenter(m_player.getPosition() + sf::Vector2f(m_player.getLocalBounds().width / 2.f, m_player.getLocalBounds().height / 2.f));
 	camCenter.x = std::min(camCenter.x, m_lvlSize.x - (m_winSize.x * 0.5f));
 	camCenter.y = std::min(camCenter.y, m_lvlSize.y - (m_winSize.y * 0.5f));
@@ -186,12 +194,10 @@ void Game::update(float dt)
 
 	//std::cout << camCenter.x - m_winSize.x/2.f << " " << camCenter.y - m_winSize.y/2.f << std::endl;
 
-	Enemy::m_viewBox = sf::FloatRect(camCenter.x - m_winSize.x/2.f, camCenter.y - m_winSize.y/2.f, m_winSize.x, m_winSize.y);
-	
-	updateAllEnemies(dt);    
+	Enemy::m_viewBox = sf::FloatRect(camCenter.x - m_winSize.x / 2.f, camCenter.y - m_winSize.y / 2.f, m_winSize.x, m_winSize.y);
 }
 
-void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void Game::draw(sf::RenderTarget& target, sf::RenderStates states)
 {
 
 	target.draw(m_bgImg, states);
@@ -210,6 +216,7 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	m_player.draw(target, states);
 	drawAllEnemies(target, states);
 	drawAllPlatforms(target, states);
+	drawAllObstacles(target, states);
 	
 	/*sf::RectangleShape rect;
 	rect.setSize(m_camView.getSize());
@@ -239,7 +246,7 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	rect.setOrigin(rect.getSize() / 2.f);
 	rect.setPosition(m_camView.getCenter());
 	target.draw(rect, states);
-	////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
 
 	target.setView(target.getDefaultView());
 }

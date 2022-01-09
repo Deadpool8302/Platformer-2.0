@@ -20,7 +20,7 @@ public:
 	void animate(float dt);
 	void reset();
 
-	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
+	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default);
 
 private:
 	sf::Sprite m_img;

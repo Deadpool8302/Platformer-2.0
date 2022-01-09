@@ -5,6 +5,7 @@
 #include "Animation.hpp"
 #include "Utility.hpp"
 #include "Enemy.hpp"
+#include "Obstacle.hpp"
 #include <vector>
 #include<iostream>
 
@@ -28,7 +29,7 @@ public:
 
 	void update(float dt);
 
-	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default) const;
+	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default);
 
 	bool isPlayerDead(); 
 
@@ -63,6 +64,9 @@ private:
 	const float m_gravity = 0.95f;
 	const sf::Vector2f m_friction = { 0.9975f, 0.977f };
 	sf::Vector2f m_force;*/
-	
+	void boundRectX();
+	void boundRectY();
+
+	sf::RectangleShape horizontal, vertical;  // temp
 		
 };
