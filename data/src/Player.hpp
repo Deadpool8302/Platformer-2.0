@@ -26,12 +26,15 @@ public:
 
 	void jump();
 	bool isGrounded() const;
-
+	
+	int m_leftKey, m_rightKey;
 	void update(float dt);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states = sf::RenderStates::Default);
 
 	bool isPlayerDead(); 
+
+	int m_enemyKillCount;
 
 private:
 	State m_currState;
@@ -56,7 +59,6 @@ private:
 	const float m_gravity = 0.002f;
 	const sf::Vector2f m_friction = {0.9975f, 1.f };
 
-
 	// battery saver settings 
 	/*const sf::Vector2f m_max_vel = { 0.7f, 0.1f };
 	const sf::Vector2f m_min_vel = { 0.4f, 0.7f };
@@ -68,5 +70,5 @@ private:
 	void boundRectY();
 
 	sf::RectangleShape horizontal, vertical;  // temp
-		
+	sf::FloatRect hor1, hor2, ver1, ver2;
 };

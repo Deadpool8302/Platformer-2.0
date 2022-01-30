@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="data\assets\Levels\level1.txt" />
+    <Text Include="data\assets\Levels\level2.txt" />
     <Text Include="data\assets\Settings\settings.txt" />
     <Text Include="notes.txt" />
   </ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="data\src\Obstacle.hpp" />
     <ClInclude Include="data\src\Platform.hpp" />
     <ClInclude Include="data\src\Player.hpp" />
+    <ClInclude Include="data\src\Timer.hpp" />
     <ClInclude Include="data\src\Utility.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

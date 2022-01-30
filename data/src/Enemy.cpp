@@ -7,11 +7,14 @@ sf::FloatRect Enemy::m_viewBox;
 
 Enemy::Enemy(sf::Texture& m_enemy, sf::Texture& deadEnemy) :
 	m_isDying(false),
-	m_vel(0.1, 0),
+	m_vel(0.2, 0),
 	moveDir(-1),
 	m_inView(false)
 {
 	m_hitbox.width = m_hitbox.height = 64;
+
+	ver.width = m_hitbox.width;
+	ver.height = 5;
 
 	m_currAnim.setTexture(m_enemy);
 	m_currAnim.setFrameLimit(7);
@@ -32,11 +35,6 @@ Enemy::Enemy(sf::Texture& m_enemy, sf::Texture& deadEnemy) :
 	m_deadAnim.setPosition(m_hitbox.width * 0.5f, m_hitbox.height * 0.5f);
 	m_deadAnim.setSpeed(20);
 	m_deadAnim.reset();
-
-	m_shape.setFillColor(sf::Color::Transparent);
-	m_shape.setSize({ 70, 70 });
-	m_shape.setOutlineColor(sf::Color::Green);
-	m_shape.setOutlineThickness(-2);
 }
 
 Enemy::~Enemy()
@@ -59,7 +57,8 @@ void drawAllEnemies(sf::RenderTarget& target, sf::RenderStates states)
 	for (int i = 0; i < Enemy::m_enemies.size(); i++) {
 		if (Enemy::m_enemies[i]->m_inView == false) 
 			Enemy::m_enemies[i]->m_inView = Enemy::m_viewBox.contains(Enemy::m_enemies[i]->getPosition());
-		if(Enemy::m_enemies[i]->m_inView) Enemy::m_enemies[i]->draw(target, states);
+		 if(Enemy::m_enemies[i]->m_inView) 
+			Enemy::m_enemies[i]->draw(target, states);
 	}
 }
 
@@ -107,98 +106,80 @@ void Enemy::update(float dt)
 	if (this->m_isDying) {
 		m_vel.x = 0;
 	}
-	move(this->m_vel.x * moveDir, this->m_vel.y);
-
-	// check collison 
-	move(-this->m_vel.x * moveDir, -this->m_vel.y);
+	
+	
+	// CHECK COLLISION
+	boundRectX();
+	boundRectY();
+	bool m_grounded = false;
 	{
 		for (auto it = Collidable::allCollidables.begin(); it != Collidable::allCollidables.end(); it++) {
-			move(this->m_vel.x * moveDir, this->m_vel.y);
-			bool haveCollided = areColliding(getGlobalBounds(), **it);
-			move(-this->m_vel.x * moveDir, -this->m_vel.y);
-			if (!haveCollided) {
-				continue;
-			}
-			else {
-				if ((*it)->getID() == Collidable::OBSTACLE) die();
+			if (ver.intersects((*it)->getGlobalBounds())) {
+				m_grounded = true;
 			}
 
-			sf::FloatRect plat = (*it)->getGlobalBounds();
-			sf::FloatRect playerBox(getGlobalBounds());
+			if (areColliding(horizontal, **it)) {
 
-			// 0-top, 1-right, 2-bottom, 3-left
-			enum Region { TOP, RIGHT, BOTTOM, LEFT } region;
-			region = BOTTOM;
+				if ((*it)->getID() == Collidable::OBSTACLE)
+					die();
 
-			if (playerBox.top >= plat.top + plat.height)
-			{
-				if (playerBox.left > plat.left + plat.width)
-				{
-					sf::Vector2f ratio = this->m_vel / sf::Vector2f(playerBox.left - plat.left - plat.width, playerBox.top - plat.top - plat.height);
-					if (ratio.x < ratio.y) region = BOTTOM;
-					else region = RIGHT;
+				if ((*it)->getCollidableSpeed().x < 0) {    // moving left 
+					
+					if (getPosition().x < (*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width / 2.f) {
+						setPosition((*it)->getGlobalBounds().left - m_hitbox.width, getPosition().y);
+					}
 				}
-				else if (playerBox.left + playerBox.width < plat.left)
-				{
-					sf::Vector2f ratio = this->m_vel / sf::Vector2f(plat.left - playerBox.left - playerBox.width, playerBox.top - plat.top - plat.height);
-					if (ratio.x < ratio.y) region = BOTTOM;
-					else region = LEFT;
+				else if ((*it)->getCollidableSpeed().x > 0) {    // moving right 
+					
+					if (getPosition().x > (*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width / 2.f) {
+						setPosition((*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width, getPosition().y);
+					}
 				}
-				else region = BOTTOM;
-			}
-			else if (playerBox.top + playerBox.height <= plat.top)
-			{
-				if (playerBox.left > plat.left + plat.width)
-				{
-					sf::Vector2f ratio = this->m_vel / sf::Vector2f(playerBox.left - plat.left - plat.width, plat.top - playerBox.top - playerBox.height);
-					if (ratio.x < ratio.y) region = TOP;
-					else region = RIGHT;
-				}
-				else if (playerBox.left + playerBox.width < plat.left)
-				{
-					sf::Vector2f ratio = this->m_vel / sf::Vector2f(plat.left - playerBox.left - playerBox.width, plat.top - playerBox.top - playerBox.height);
-					if (ratio.x < ratio.y) region = TOP;
-					else region = LEFT;
-				}
-				else region = TOP;
-			}
 
-			else if (playerBox.left >= plat.left + plat.width)
-			{
-				if (playerBox.top + playerBox.height >= plat.top && playerBox.top <= plat.top + plat.height)
-					region = RIGHT;
-			}
-			else if (playerBox.left + playerBox.width <= plat.left)
-			{
-				if (playerBox.top + playerBox.height >= plat.top && playerBox.top <= plat.top + plat.height)
-					region = LEFT;
-			}
-
-
-			if (region == TOP || region == BOTTOM)
-			{
-				this->m_vel.y = 0;
-				if (region == TOP) setPosition(getPosition().x, plat.top - playerBox.height);
-				else if (region == BOTTOM) setPosition(getPosition().x, plat.top + plat.height);
-			}
-			else if (region == LEFT || region == RIGHT)
-			{
-				/*this->m_vel.x = 0;*/
-				if (region == LEFT) {
-					setPosition(plat.left - playerBox.width, getPosition().y);
+				if (moveDir > 0) {   // moving right
+					setPosition((*it)->getGlobalBounds().left - m_hitbox.width - 5, getPosition().y);
 					moveDir = -1;
 					m_currAnim.setInverted(false, false);
 				}
-				else if (region == RIGHT) {
-					setPosition(plat.left + plat.width, getPosition().y);
+				else if (moveDir < 0) {   // moving left
+					setPosition((*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width + 5, getPosition().y);
 					moveDir = 1;
 					m_currAnim.setInverted(true, false);
 				}
 			}
+			if (areColliding(vertical, **it)) {
+
+				if ((*it)->getID() == Collidable::OBSTACLE)
+					die();
+
+				if ((*it)->getCollidableSpeed().y < 0) {    // moving up
+					m_vel.y = 0;
+					if (getPosition().y < (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height / 2.f) {
+						setPosition(getPosition().x, (*it)->getGlobalBounds().top - m_hitbox.height);
+					}
+				}
+				else if ((*it)->getCollidableSpeed().y > 0) {    // moving down
+					m_vel.y = 0;
+					if (getPosition().y > (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height / 2.f) {
+						setPosition(getPosition().x, (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height);
+					}
+				}
+
+				if (m_vel.y < 0) {    // moving up 
+					m_vel.y = 0;
+					setPosition(getPosition().x, (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height);
+				}
+				else if (m_vel.y > 0) {   // moving down
+					m_vel.y = 0;
+					setPosition(getPosition().x, (*it)->getGlobalBounds().top - m_hitbox.height);
+				}
+			}
 		}
+
 	}
 
-	move(this->m_vel.x * moveDir, this->m_vel.y);
+	if(m_grounded) move(this->m_vel.x * moveDir, this->m_vel.y);
+	else move(0, this->m_vel.y);
 
 	if (this->m_isDying) m_deadAnim.animate(dt);
 	else m_currAnim.animate(dt);
@@ -214,9 +195,22 @@ void Enemy::draw(sf::RenderTarget& target, sf::RenderStates states)
 	}
 	else {
 		if (m_isDying) m_deadAnim.draw(target, states);
-		else m_currAnim.draw(target, states);
-		//target.draw(m_shape, states);
+		 else m_currAnim.draw(target, states);
 	}
+
+	/*sf::RectangleShape hor, ver, shape;
+	shape.setSize({m_hitbox.width, m_hitbox.height});
+	shape.setPosition(getPosition());
+	shape.setFillColor(sf::Color::Transparent);
+	shape.setOutlineColor(sf::Color::Green);
+	shape.setOutlineThickness(-3);
+	hor.setSize({ horizontal.width, horizontal.height });
+	ver.setSize({ vertical.width, vertical.height });
+	hor.setPosition({horizontal.left, horizontal.top});
+	ver.setPosition({ vertical.left, vertical.top });
+	target.draw(hor);
+	target.draw(ver);
+	target.draw(shape);*/
 }
 
 sf::FloatRect Enemy::getLocalBounds() const
@@ -232,4 +226,23 @@ sf::FloatRect Enemy::getGlobalBounds() const
 sf::FloatRect& Enemy::getHitbox()
 {
 	return m_hitbox;
+}
+
+void Enemy::boundRectX()
+{
+	horizontal.width = m_hitbox.width + m_vel.x * moveDir;
+	horizontal.height = m_hitbox.height - 12;
+	horizontal.left = getPosition().x + m_vel.x * 20 * moveDir;
+	horizontal.top = getPosition().y + 6;
+}
+
+void Enemy::boundRectY()
+{
+	vertical.width = m_hitbox.width - 12;
+	vertical.height = m_hitbox.height + m_vel.y;
+	vertical.left = getPosition().x + 6;
+	vertical.top = getPosition().y + (m_vel.y >= 0 ? m_vel.y * 13 : m_vel.y * 8);
+
+	ver.left = getPosition().x;
+	ver.top = getPosition().y + getLocalBounds().height;
 }

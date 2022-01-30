@@ -10,6 +10,8 @@ App::App()
 	m_window.setKeyRepeatEnabled(false);
 	m_window.create(sf::VideoMode(1024, 512), "Platformer");
 
+	m_score = 0;
+
 	m_game.setup(getWinSize());
 
 	loadTextures();
@@ -45,16 +47,6 @@ void App::setupGUI()
 	m_button_start->setSize({ 160,60 });
 	m_button_start->setOrigin(m_button_start->getSize() / 2.f);
 	m_button_start->setSelectionScale({ 1.2f, 1.2f });
-	/*m_button_start->setFillColor(sf::Color::Transparent);
-	m_button_start->setOutlineColor(sf::Color(160, 32, 240));
-	m_button_start->setOutlineThickness(3);
-	m_button_start->setSelectionFillColor(sf::Color(160, 32, 240, 126));
-	m_button_start->setSelectionOutlineColor(sf::Color(124, 163, 251));
-	m_button_start->setSelectionOutlineThickness(5);
-	m_button_start->setCharacterSize(22);
-	m_button_start->setTextFillColor(sf::Color::White);
-	m_button_start->setFont(m_font);
-	m_button_start->setString("Start");*/
 
 	m_button_level = zui::copy(m_button_start);
 	m_button_level->setString("level");
@@ -71,10 +63,22 @@ void App::setupGUI()
 	m_button_restart = zui::copy(m_button_start);
 	m_button_restart->setString("Restart");
 
+	m_textbox_scoreBoard = zui::create<zui::Textbox>();
+	m_textbox_scoreBoard->setSize({ 300, 200 });
+	m_textbox_scoreBoard->setOrigin(m_textbox_scoreBoard->getSize() / 2.f);
+
+	m_textbox_score = zui::create<zui::Textbox>();
+	m_textbox_score->setSize({ 150, 40 });
+	m_textbox_score->setOrigin(m_textbox_score->getSize() / 2.f);
+	m_textbox_score->setFillColor(sf::Color::Transparent);
+	m_textbox_score->setCharacterSize(38);
+	m_textbox_score->setTextFillColor(sf::Color(255, 221, 124));
+	m_textbox_score->setFont(m_font);
+	m_textbox_score->setTextOutlineThickness(3);
+
 	m_button_menu = zui::copy(m_button_start);
 	m_button_menu->setString("Menu");
 
-	//m_button_vol = m_button_start;
 	m_button_vol = zui::create<zui::TextButton>();
 	m_button_vol->setSize({ 60,60 });
 	m_button_vol->setOrigin(m_button_vol->getSize() / 2.f);
@@ -82,8 +86,6 @@ void App::setupGUI()
 	m_button_vol->setString("Vol");
 
 	m_button_back = zui::copy(m_button_start);
-	/*m_button_back->setSize({ 160,60 });
-	m_button_back->setOrigin(m_button_back->getSize() / 2.f);*/
 	m_button_back->setString("Back to Menu");
 
 	m_slider_vol = zui::create<zui::Slider>();
@@ -92,58 +94,41 @@ void App::setupGUI()
 	m_slider_vol->setBarFillColor(sf::Color::Red);
 	m_slider_vol->setBarSelectionColor(sf::Color::Yellow);
 	m_slider_vol->setFillColor(sf::Color::Transparent);
-	m_slider_vol->setOutlineColor(sf::Color(160, 32, 240));
-	m_slider_vol->setOutlineThickness(3);
-	//m_slider_vol->setTextFillColor(sf::Color::White);
-	//m_slider_vol->setFont(m_font);
-	//m_slider_vol->setCharacterSize(22);
-	//m_slider_vol->setString("Volume");
 	m_slider_vol->setVariable(m_musicVolume, 0, 100);
 	
 	m_textbox_control_left = zui::create<zui::Textbox>();
 	m_textbox_control_left->setSize({ 150, 40 });
 	m_textbox_control_left->setOrigin(m_textbox_control_left->getSize() / 2.f);
-	m_textbox_control_left->setFillColor(sf::Color::Transparent);
-	m_textbox_control_left->setOutlineColor(sf::Color(160, 32, 240));
-	m_textbox_control_left->setOutlineThickness(3);
-	m_textbox_control_left->setCharacterSize(22);
-	m_textbox_control_left->setTextFillColor(sf::Color::White);
-	m_textbox_control_left->setFont(m_font);
-	m_textbox_control_left->setString("Move Left");
 
 	m_textbox_control_right = zui::copy(m_textbox_control_left);
-	m_textbox_control_right->setString("Move Right");
 
 	m_inputbox_control_left = zui::create<zui::Inputbox>();
 	m_inputbox_control_left->setSize({ 150, 40 });
 	m_inputbox_control_left->setOrigin(m_inputbox_control_left->getSize() / 2.f);
-	m_inputbox_control_left->setFillColor(sf::Color::Transparent);
-	m_inputbox_control_left->setOutlineColor(sf::Color(160, 32, 240));
+	m_inputbox_control_left->setFillColor(sf::Color(228, 169, 79));
+	m_inputbox_control_left->setOutlineColor(sf::Color(178, 75, 48));
 	m_inputbox_control_left->setOutlineThickness(3);
-	m_inputbox_control_left->setSelectionFillColor(sf::Color(160, 32, 240, 126));
-	m_inputbox_control_left->setSelectionOutlineColor(sf::Color(124, 163, 251));
+	m_inputbox_control_left->setSelectionFillColor(sf::Color(228, 169, 79, 126));
+	m_inputbox_control_left->setSelectionOutlineColor(sf::Color(178, 75, 48));
 	m_inputbox_control_left->setSelectionOutlineThickness(5);
 	m_inputbox_control_left->setCharacterSize(22);
-	m_inputbox_control_left->setTextFillColor(sf::Color::White);
+	m_inputbox_control_left->setTextFillColor(sf::Color(95, 38, 9));
 	m_inputbox_control_left->setFont(m_font);
 
-	//m_inputbox_control_right = zui::copy(m_inputbox_control_left);
 	m_inputbox_control_right = zui::create<zui::Inputbox>();
 	m_inputbox_control_right->setSize({ 150, 40 });
 	m_inputbox_control_right->setOrigin(m_inputbox_control_right->getSize() / 2.f);
-	m_inputbox_control_right->setFillColor(sf::Color::Transparent);
-	m_inputbox_control_right->setOutlineColor(sf::Color(160, 32, 240));
+	m_inputbox_control_right->setFillColor(sf::Color(228, 169, 79));
+	m_inputbox_control_right->setOutlineColor(sf::Color(178, 75, 48));
 	m_inputbox_control_right->setOutlineThickness(3);
-	m_inputbox_control_right->setSelectionFillColor(sf::Color(160, 32, 240, 126));
-	m_inputbox_control_right->setSelectionOutlineColor(sf::Color(124, 163, 251));
+	m_inputbox_control_right->setSelectionFillColor(sf::Color(228, 169, 79, 126));
+	m_inputbox_control_right->setSelectionOutlineColor(sf::Color(178, 75, 48));
 	m_inputbox_control_right->setSelectionOutlineThickness(5);
 	m_inputbox_control_right->setCharacterSize(22);
-	m_inputbox_control_right->setTextFillColor(sf::Color::White);
+	m_inputbox_control_right->setTextFillColor(sf::Color(95, 38, 9));
 	m_inputbox_control_right->setFont(m_font);
-
+	
 	m_button_save = zui::copy(m_button_start);
-	/*m_button_save.setSize({ 160, 40 });
-	m_button_save.setOrigin(m_button_save.getSize() / 2.f);*/
 ;	m_button_save->setString("Save Changes");
 
 
@@ -158,11 +143,7 @@ void App::setupGUI()
 		m_levels[i]->setOrigin(m_levels[i]->getSize() / 2.f);
 		m_levels[i]->setSelectionScale({ 1.2f, 1.2f });
 		m_levels[i]->setFont(m_font_level);
-		std::stringstream levelNum;
-		levelNum << i + 1;
-		std::string num;
-		levelNum >> num;
-		m_levels[i]->setString("Level " + num);
+		m_levels[i]->setString("Level " + std::to_string(i + 1));
 		
 	}
 
@@ -196,11 +177,12 @@ void App::setupGUI()
 		m_frame_pauseMenu.push_in_navigationOrder(*m_button_exit);
 	}
 	{
+		m_frame_gameOverMenu.addEntity(m_textbox_scoreBoard.get());
+		m_frame_gameOverMenu.addEntity(m_textbox_score.get());
 		m_frame_gameOverMenu.addEntity(m_button_restart.get());
 		m_frame_gameOverMenu.addEntity(m_button_menu.get());
 		m_frame_gameOverMenu.addEntity(m_button_exit.get());
-
-
+		
 		m_frame_gameOverMenu.push_in_navigationOrder(*m_button_restart);
 		m_frame_gameOverMenu.push_in_navigationOrder(*m_button_menu);
 		m_frame_gameOverMenu.push_in_navigationOrder(*m_button_exit);
@@ -213,7 +195,6 @@ void App::setupGUI()
 		m_frame_optionsMenu.addEntity(m_textbox_control_right.get());
 		m_frame_optionsMenu.addEntity(m_inputbox_control_left.get());
 		m_frame_optionsMenu.addEntity(m_inputbox_control_right.get());
-		//m_frame_optionsMenu.addEntity(m_textbox_control_jump.get());
 		m_frame_optionsMenu.addEntity(m_button_save.get());
 
 
@@ -228,6 +209,7 @@ void App::setupGUI()
 	// button actions
 	m_button_start->setAction([this]()
 		{
+			m_scoreClock.reset();
 			loadAppState(GAME);
 			m_game.start();
 		}
@@ -266,6 +248,7 @@ void App::setupGUI()
 
 	m_button_restart->setAction([this]()
 		{
+			m_scoreClock.reset();
 			loadAppState(GAME);
 			m_game.loadSameLevel();
 		}
@@ -282,6 +265,7 @@ void App::setupGUI()
 				settingsOutput << "TotalLevels " << m_game.getTotalLevels() << '\n';
 			}
 			settingsOutput.close();
+			m_game.setup(getWinSize());
 		}
 	);
 
@@ -304,6 +288,15 @@ void App::setupGUI()
 			}
 		}
 	);
+	for (int i = 0; i < m_levels.size(); i++) {
+		m_levels[i]->setAction([this,i]()
+			{
+				m_scoreClock.reset();
+				loadAppState(GAME);
+				m_game.loadLevel(i+1);
+			}
+		);
+	}
 	
 	{
 		m_button_textures["start"].loadFromFile("data/assets/images/buttons/play.png");
@@ -319,10 +312,14 @@ void App::setupGUI()
 		m_button_textures["volMute"].loadFromFile("data/assets/images/buttons/vol_mute.png");
 		m_vols[0] = m_button_textures["vol"]; 
 		m_vols[1] = m_button_textures["volMute"];
+		m_button_textures["moveright"].loadFromFile("data/assets/images/buttons/moveright.png");
+		m_button_textures["moveleft"].loadFromFile("data/assets/images/buttons/moveleft.png");
 		m_button_textures["back"].loadFromFile("data/assets/images/buttons/back.png");
 		m_button_textures["save"].loadFromFile("data/assets/images/buttons/save.png");
 
 		m_button_textures["levels"].loadFromFile("data/assets/images/buttons/level-num.png");
+
+		m_button_textures["score"].loadFromFile("data/assets/images/buttons/scoreboard.png");
 	}
 }
 
@@ -345,6 +342,10 @@ void App::loadGame()
 	m_state = GAME;
 
 	m_game.setPaused(false);
+
+	m_scoreClock.resume();
+
+	m_game.resetKillCount();
 }
 
 void App::loadMainMenu()
@@ -363,6 +364,10 @@ void App::loadMainMenu()
 
 	m_button_exit->setPosition(m_window.getSize().x / 2.f, 390);
 	m_button_exit->setTexture(&m_button_textures["exit"]);
+
+	m_game.resetKillCount();
+
+	m_scoreClock.pause();
 }
 
 void App::loadPauseMenu()
@@ -387,21 +392,31 @@ void App::loadPauseMenu()
 	m_button_exit->setPosition(m_window.getSize().x / 2.f, 420);
 	m_button_exit->setTexture(&m_button_textures["exit"]);
 
+	m_scoreClock.pause();
 }
 void App::loadGameOverMenu()
 {
 	m_prevState = m_state;
 	m_state = GAME_OVER_MENU;
 
-	m_button_restart->setPosition(m_window.getSize().x / 2.f, 150);
+	m_textbox_scoreBoard->setPosition(m_window.getSize().x / 2.f, 120);
+	m_textbox_scoreBoard->setTexture(&m_button_textures["score"]);
+	m_textbox_score->setPosition(m_window.getSize().x / 2.f, 140);
+	m_score += m_game.getTotalKillCount() * 100;
+	std::string score = std::to_string(m_score);
+	m_textbox_score->setString(score.substr(0, (int)score.size() - 4));
+
+	m_button_restart->setPosition(m_window.getSize().x / 2.f, 280);
 	m_button_restart->setTexture(&m_button_textures["restart"]);
 
-	m_button_menu->setPosition(m_window.getSize().x / 2.f, 230);
+	m_button_menu->setPosition(m_window.getSize().x / 2.f, 360);
 	m_button_menu->setTexture(&m_button_textures["menu"]);
 
-	m_button_exit->setPosition(m_window.getSize().x / 2.f, 310);
+	m_button_exit->setPosition(m_window.getSize().x / 2.f, 440);
 	m_button_exit->setTexture(&m_button_textures["exit"]);
 
+	m_game.resetKillCount();
+	m_scoreClock.pause();
 }
 
 void App::loadLevelMenu()
@@ -413,6 +428,10 @@ void App::loadLevelMenu()
 		m_levels[i]->setPosition(128 * (2 * (i % 4 + 1) - 1), 64*(2*((i + 4)/4) - 1));
 		m_levels[i]->setTexture(&m_button_textures["levels"]);
 	}
+
+	m_game.resetKillCount();
+
+	m_scoreClock.pause();
 }
 
 void App::loadOptionsMenu()
@@ -429,7 +448,11 @@ void App::loadOptionsMenu()
 
 	m_slider_vol->setPosition(m_window.getSize().x / 2.f + 28, 180);
 	m_textbox_control_left->setPosition(m_window.getSize().x / 2.f - 85, 260);
+	m_textbox_control_left->setTexture(&m_button_textures["moveleft"]);
+	m_textbox_control_left->setScale(1, 1.4);
 	m_textbox_control_right->setPosition(m_window.getSize().x / 2.f - 85, 340);
+	m_textbox_control_right->setTexture(&m_button_textures["moveright"]);
+	m_textbox_control_right->setScale(1, 1.4);
 
 	m_inputbox_control_left->setPosition(m_window.getSize().x / 2.f + 85, 260);
 	m_inputbox_control_right->setPosition(m_window.getSize().x / 2.f + 85, 340);
@@ -458,13 +481,18 @@ void App::loadOptionsMenu()
 	}
 
 	settingsInput.close();
+
+	m_scoreClock.pause();
 }
 
 void App::update()
 {
 	float dt = m_clock.restart().asSeconds();
 	
-	
+	m_score = 5*m_scoreClock.getElapsedTime().asSeconds();
+	std::string score = std::to_string(m_score);
+	m_window.setTitle("Platformer    Score : " + score.substr(0, (int)score.size() - 4));
+
 	switch(m_state){
 	case GAME:				m_game.update(dt); break;
 	case MAIN_MENU:			m_frame_mainMenu.update(); break;
@@ -477,9 +505,6 @@ void App::update()
 	if (m_game.isGameOver() && m_state != GAME_OVER_MENU) {
 		m_game.update(dt);
 		loadAppState(GAME_OVER_MENU);
-	}
-	else {
-		
 	}
 
 	m_game_music.setVolume(m_musicVolume);
@@ -502,16 +527,6 @@ void App::render()
 	case LEVEL_MENU:		m_frame_levelMenu.draw(); break;
 	case OPTIONS_MENU:		m_frame_optionsMenu.draw(); break;
 	}
-	
-	//*********************
-	sf::RectangleShape rect;
-	rect.setSize(sf::Vector2f(0, m_window.getSize().y));
-	rect.setOutlineThickness(1);
-	rect.setOutlineColor(sf::Color::Green);
-	rect.setOrigin(rect.getSize() / 2.f);
-	rect.setPosition(m_window.getSize().x/2.f, m_window.getSize().y / 2.f);
-	m_window.draw(rect);
-	//*********************
 
 	m_window.display();
 }
@@ -536,8 +551,6 @@ void App::pollEvents()
 			}
 		}	
 
-		//auto temp = m_state;
-
 		switch (m_state) {
 		case GAME:				m_game.pollEvents(event); break;
 		case MAIN_MENU:			m_frame_mainMenu.pollEvents(event); break;
@@ -546,8 +559,6 @@ void App::pollEvents()
 		case LEVEL_MENU:		m_frame_levelMenu.pollEvents(event); break;
 		case OPTIONS_MENU:		m_frame_optionsMenu.pollEvents(event); break;
 		}
-
-		//if (temp != m_state) std::cout << "errorr\n";
 
 		if (m_inputbox_control_left->getString().size() > 1)
 			m_inputbox_control_left->setString(std::string() + (char)toupper(m_inputbox_control_left->getString().erase(0, 1)[0]));

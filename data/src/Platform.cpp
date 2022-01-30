@@ -158,7 +158,7 @@ void Platform::updateMovingPlatform(float dt)
 	y1 = getPosition().y;
 	double dis = std::sqrt((x1 - x) * (x1 - x) + (y1 - y) * (y1 - y));
 	if (dis >= m_distance) m_moveDir *= -1;
-	else if (dis <= 0) m_moveDir *= -1;
+	else if (dis <= 0.1) m_moveDir *= -1;
 }
 
 void removeAllPlatforms()

@@ -11,7 +11,6 @@
 class Enemy : public sf::Transformable {
 private:
 	sf::FloatRect m_hitbox;
-	sf::RectangleShape m_shape;   // temporary 
 
 	bool m_inView;
 	bool m_isDying;
@@ -24,6 +23,10 @@ private:
 	Animation m_currAnim;
 	Animation m_deadAnim;
 	
+	sf::FloatRect horizontal, vertical, ver;
+	void boundRectX();
+	void boundRectY();
+
 	friend void addEnemy(sf::Vector2f position, sf::Texture& texture, sf::Texture& deadTexture);
 	friend void drawAllEnemies(sf::RenderTarget& target, sf::RenderStates states);
 	friend void removeAllEnemies();

@@ -8,13 +8,25 @@ Player::Player()
 	m_hitbox.width = m_hitbox.height = 64;
 
 	/////////////////////////////////////////////////////////
-	m_shape.setFillColor(sf::Color::Green);
-	m_shape.setSize({64, 64 });
+	//m_shape.setFillColor(sf::Color::Green);
+	//m_shape.setSize({64, 64 });
 	//m_shape.setOutlineColor(sf::Color::Green);
 	//m_shape.setOutlineThickness(-2);
 	horizontal.setFillColor(sf::Color::Blue);
 	vertical.setFillColor(sf::Color::Yellow);
 	/////////////////////////////////////////////////////////
+
+	m_leftKey = 0;
+	m_rightKey = 3;
+
+	hor1.width = 5;
+	hor2.width = 5;
+	hor1.height = m_hitbox.height;
+	hor2.height = m_hitbox.height;
+	ver1.width = m_hitbox.width;
+	ver2.width = m_hitbox.width;
+	ver1.height = 5;
+	ver2.height = 5;
 
 	m_ninja.loadFromFile("data/assets/images/ninja.png");
 	m_deadNinja.loadFromFile("data/assets/images/dead_ninja.png");
@@ -40,6 +52,7 @@ Player::Player()
 	m_deadAnim.reset();
 
 	m_vel = { 0, 0 };
+	m_enemyKillCount = 0;
 }
 
 void Player::reset()
@@ -52,7 +65,6 @@ void Player::reset()
 	m_currAnim.setTexture(m_ninja);
 	m_deadAnim.reset();
 	m_deadAnim.setTexture(m_deadNinja);
-
 	m_vel = { 0,0 };
 }
 
@@ -86,13 +98,13 @@ void Player::update(float dt)
 	// Gravity 
 	m_vel.y += m_gravity;
 
-	if (!m_playerDying && sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+	if (!m_playerDying && sf::Keyboard::isKeyPressed(sf::Keyboard::Key(m_rightKey))) {
 		m_vel.x += 1 * m_acc; 
 		if (std::abs(m_vel.x) > m_max_vel.x) {
 			m_vel.x = m_max_vel.x * ((m_vel.x < 0.f) ? -1.f : 1.f);
 		}
 	}
-	if (!m_playerDying && sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+	if (!m_playerDying && sf::Keyboard::isKeyPressed(sf::Keyboard::Key(m_leftKey))) {
 		m_vel.x += -1 * m_acc;
 		if (std::abs(m_vel.x) > m_max_vel.x) {
 			m_vel.x = m_max_vel.x * ((m_vel.x < 0.f) ? -1.f : 1.f);
@@ -122,21 +134,28 @@ void Player::update(float dt)
 	boundRectX();
 	boundRectY();
 
+	bool groundPresent = false;
 	// CHECK COLLISION
 	{
-
+		
 		for (auto it = Collidable::allCollidables.begin(); it != Collidable::allCollidables.end(); it++) {
+			if (ver2.intersects((*it)->getGlobalBounds())) {
+				groundPresent = true;
+			}
+			
 			if (areColliding(horizontal.getGlobalBounds(), **it)) {
 
 				if ((*it)->getID() == Collidable::OBSTACLE)
 					m_playerDying = true;
 
 				if ((*it)->getCollidableSpeed().x < 0) {    // moving left 
+					m_vel.x = 0;
 					if (getPosition().x < (*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width/2.f) {
 						setPosition((*it)->getGlobalBounds().left - m_hitbox.width, getPosition().y);
 					}
 				}
 				else if ((*it)->getCollidableSpeed().x > 0) {    // moving right 
+					m_vel.x = 0;
 					if (getPosition().x > (*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width / 2.f) {
 						setPosition((*it)->getGlobalBounds().left + (*it)->getGlobalBounds().width, getPosition().y);
 					}
@@ -157,28 +176,29 @@ void Player::update(float dt)
 					m_playerDying = true;
 
 				if ((*it)->getCollidableSpeed().y < 0) {    // moving up
+					m_vel.y = 0;
 					if (getPosition().y < (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height / 2.f) {
 						setPosition(getPosition().x, (*it)->getGlobalBounds().top - m_hitbox.height);
 					}
 				}
 				else if ((*it)->getCollidableSpeed().y > 0) {    // moving down
+					m_vel.y = 0;
 					if (getPosition().y > (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height / 2.f) {
-						setPosition(getPosition().x, (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height);
+						setPosition(getPosition().x, (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height +  10);
 					}
 				}
 
-				if (m_vel.y > 0) {   // moving down
-					m_vel.y = 0;
-					setPosition(getPosition().x, (*it)->getGlobalBounds().top - m_hitbox.height);
-				}
-				else if (m_vel.y < 0) {    // moving up 
+				if (m_vel.y < 0) {    // moving up 
 					m_vel.y = 0;
 					setPosition(getPosition().x, (*it)->getGlobalBounds().top + (*it)->getGlobalBounds().height);
 				}
+				else if (m_vel.y > 0) {   // moving down
+					m_vel.y = 0;
+					setPosition(getPosition().x, (*it)->getGlobalBounds().top - m_hitbox.height );
+				}
+				
 			}
-			
 		}
-		
 	}
 
 	move(this->m_vel);
@@ -212,6 +232,7 @@ void Player::update(float dt)
 				}
 				if (regionTOP) {
 					m_vel.y = -1.0f;
+					m_enemyKillCount++;
 					(*it)->die();
 				}
 				else {
@@ -222,9 +243,11 @@ void Player::update(float dt)
 		move(this->m_vel.x, this->m_vel.y);
 	}
 	
-	m_grounded = m_vel.y == 0;  // correction 
+	//m_grounded = m_vel.y == 0;  // correction 
+	m_grounded = groundPresent;
 
 	if (m_playerDying) {
+		m_deadAnim.setInverted(m_currAnim.getInverted().x, m_currAnim.getInverted().y);
 		m_deadAnim.animate(dt);
 		if (m_deadAnim.isAnimationComp()) {
 			m_playerDead = true;
@@ -232,7 +255,6 @@ void Player::update(float dt)
 	}
 	else m_currAnim.animate(dt);
 
-	
 }
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states)
@@ -240,12 +262,33 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states)
 	states.transform *= getTransform();
 	if (m_playerDying) m_deadAnim.draw(target, states);
 	else {
-		m_currAnim.draw(target, states);
+		 m_currAnim.draw(target, states);
 	}
+	/*sf::RectangleShape a, b, c, d;
+	a.setSize({ hor1.width, hor1.height });
+	a.setPosition({ hor1.left, hor1.top });
+	a.setFillColor(sf::Color::Red);
 
-	//target.draw(m_shape, states);
-	//target.draw(horizontal);
-	//target.draw(vertical);
+	b.setSize({ hor2.width, hor2.height });
+	b.setPosition({ hor2.left, hor2.top });
+	b.setFillColor(sf::Color::Red);
+
+	c.setSize({ ver1.width, ver1.height });
+	c.setPosition({ ver1.left, ver1.top });
+	c.setFillColor(sf::Color::Red);
+
+	d.setSize({ ver2.width, ver2.height });
+	d.setPosition({ ver2.left, ver2.top });
+	d.setFillColor(sf::Color::Green);
+
+	target.draw(a);
+	target.draw(b);
+	target.draw(c);
+	target.draw(d);
+	*/
+	/*target.draw(m_shape, states);
+	target.draw(horizontal);
+	target.draw(vertical);*/
 }
 
 bool Player::isPlayerDead()
@@ -258,13 +301,20 @@ void Player::boundRectX()
 	horizontal.setSize({ m_hitbox.width + m_vel.x, m_hitbox.height - 12 });
 	horizontal.setPosition(getPosition().x + m_vel.x*20, getPosition().y + 6);
 	// 9.97501
+	hor1.left = getPosition().x - 5;
+	hor2.left = getGlobalBounds().left + getGlobalBounds().width;
+	hor1.top = getPosition().y;
+	hor2.top = getPosition().y;
 }
 
 void Player::boundRectY()
 {
 	vertical.setSize({ m_hitbox.width - 12, m_hitbox.height + m_vel.y });
-	vertical.setPosition(getPosition().x + 6, getPosition().y + (m_vel.y >= 0 ? m_vel.y*11.53 : m_vel.y*7));
-
+	vertical.setPosition(getPosition().x + 6, getPosition().y + (m_vel.y >= 0 ? m_vel.y*13 : m_vel.y*8));
+	ver1.left = getPosition().x;
+	ver2.left = getPosition().x;
+	ver1.top = getPosition().y - 5;
+	ver2.top = getPosition().y + getLocalBounds().height;
 	// -1.49426   == 1.50
 	// 0.639998   == 0.64  7.47125
 }

@@ -66,7 +66,6 @@ private:
 		const sf::Vector2f& tileSize, 
 		const std::array<sf::Texture, 12>& tileTextures
 	);
-
 	friend void addMovingPlatform (
 		const sf::Vector2i& tilePos, 
 		const sf::Vector2i& tileCount, 
@@ -85,7 +84,6 @@ private:
 	/////////////////////////////////////////////////
 	// Member Data
 	/////////////////////////////////////////////////
-
 	std::vector<sf::Sprite> m_imgs;                 /// < set of sprites of tiles of the object 
 	static std::vector<std::unique_ptr<Platform>> m_platforms;		/// < set of all the platforms created 
 	static std::vector<std::unique_ptr<Platform>> m_movingPlatforms;		/// < set of all the moving platforms createed

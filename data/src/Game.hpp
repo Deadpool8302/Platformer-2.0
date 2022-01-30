@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include<ZUI.hpp>
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Utility.hpp"
@@ -19,12 +20,13 @@ public:
 
 	void setPaused(bool pause);
 	bool isPaused() const;
-
+	void loadNextLevel();
 	void start();
 	void loadLevel(int level);
 	void loadSameLevel();
-	void loadNextLevel();
-
+	
+	void resetKillCount();
+	int getTotalKillCount();
 	int getTotalLevels();
 
 	bool pollEvents(const sf::Event& event);
@@ -51,9 +53,12 @@ private:
 
 	sf::Sprite m_bgImg;
 	sf::Texture m_bgTexture;
+	sf::Sprite flag;
+	sf::FloatRect flagBox;
 
 	Player m_player;
 
-	std::vector<sf::Texture> m_allTextures;
+	std::map<std::string, sf::Texture> m_allTextures;
 	std::array<sf::Texture, 12> m_tile_textures;
 };
+

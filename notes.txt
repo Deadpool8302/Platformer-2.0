@@ -236,3 +236,94 @@ class Collision:
 
 		move(this->m_vel.x, this->m_vel.y);
 	}
+
+
+	move(-this->m_vel.x * moveDir, -this->m_vel.y);
+	{
+		for (auto it = Collidable::allCollidables.begin(); it != Collidable::allCollidables.end(); it++) {
+			move(this->m_vel.x * moveDir, this->m_vel.y);
+			bool haveCollided = areColliding(getGlobalBounds(), **it);
+			move(-this->m_vel.x * moveDir, -this->m_vel.y);
+			if (!haveCollided) {
+				continue;
+			}
+			else {
+				if ((*it)->getID() == Collidable::OBSTACLE) die();
+			}
+
+			sf::FloatRect plat = (*it)->getGlobalBounds();
+			sf::FloatRect playerBox(getGlobalBounds());
+
+			// 0-top, 1-right, 2-bottom, 3-left
+			enum Region { TOP, RIGHT, BOTTOM, LEFT } region;
+			region = BOTTOM;
+
+			if (playerBox.top >= plat.top + plat.height)
+			{
+				if (playerBox.left > plat.left + plat.width)
+				{
+					sf::Vector2f ratio = this->m_vel / sf::Vector2f(playerBox.left - plat.left - plat.width, playerBox.top - plat.top - plat.height);
+					if (ratio.x < ratio.y) region = BOTTOM;
+					else region = RIGHT;
+				}
+				else if (playerBox.left + playerBox.width < plat.left)
+				{
+					sf::Vector2f ratio = this->m_vel / sf::Vector2f(plat.left - playerBox.left - playerBox.width, playerBox.top - plat.top - plat.height);
+					if (ratio.x < ratio.y) region = BOTTOM;
+					else region = LEFT;
+				}
+				else region = BOTTOM;
+			}
+			else if (playerBox.top + playerBox.height <= plat.top)
+			{
+				if (playerBox.left > plat.left + plat.width)
+				{
+					sf::Vector2f ratio = this->m_vel / sf::Vector2f(playerBox.left - plat.left - plat.width, plat.top - playerBox.top - playerBox.height);
+					if (ratio.x < ratio.y) region = TOP;
+					else region = RIGHT;
+				}
+				else if (playerBox.left + playerBox.width < plat.left)
+				{
+					sf::Vector2f ratio = this->m_vel / sf::Vector2f(plat.left - playerBox.left - playerBox.width, plat.top - playerBox.top - playerBox.height);
+					if (ratio.x < ratio.y) region = TOP;
+					else region = LEFT;
+				}
+				else region = TOP;
+			}
+
+			else if (playerBox.left >= plat.left + plat.width)
+			{
+				if (playerBox.top + playerBox.height >= plat.top && playerBox.top <= plat.top + plat.height)
+					region = RIGHT;
+			}
+			else if (playerBox.left + playerBox.width <= plat.left)
+			{
+				if (playerBox.top + playerBox.height >= plat.top && playerBox.top <= plat.top + plat.height)
+					region = LEFT;
+			}
+
+
+			if (region == TOP || region == BOTTOM)
+			{
+				this->m_vel.y = 0;
+				if (region == TOP) setPosition(getPosition().x, plat.top - playerBox.height);
+				else if (region == BOTTOM) setPosition(getPosition().x, plat.top + plat.height);
+			}
+			else if (region == LEFT || region == RIGHT)
+			{
+				/*this->m_vel.x = 0;*/
+				if (region == LEFT) {
+					setPosition(plat.left - playerBox.width, getPosition().y);
+					moveDir = -1;
+					m_currAnim.setInverted(false, false);
+				}
+				else if (region == RIGHT) {
+					setPosition(plat.left + plat.width, getPosition().y);
+					moveDir = 1;
+					m_currAnim.setInverted(true, false);
+				}
+			}
+		}
+	}
+
+	move(this->m_vel.x * moveDir, this->m_vel.y);

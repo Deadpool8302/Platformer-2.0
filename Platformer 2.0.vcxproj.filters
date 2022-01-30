@@ -47,6 +47,7 @@
     <Text Include="notes.txt" />
     <Text Include="data\assets\Settings\settings.txt" />
     <Text Include="data\assets\Levels\level1.txt" />
+    <Text Include="data\assets\Levels\level2.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data\src\App.hpp">
@@ -74,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="data\src\Obstacle.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="data\src\Timer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,9 +5,10 @@
 #include <algorithm>
 #include "Utility.hpp"
 
-Game::Game() 
+Game::Game()
 {
 	m_curLevel = 0;
+	flagBox.width = flagBox.height = 64;
 }
 
 Game::~Game()
@@ -37,11 +38,19 @@ void Game::setup(const sf::Vector2f& winSize)
 			ss >> m_totalLevels;
 			break;
 		}
+		else if (key == "Left") {
+			char a;
+			ss >> a;
+			m_player.m_leftKey = int(a - 'A');
+		}
+		else if (key == "Right") {
+			char a;
+			ss >> a;
+			m_player.m_rightKey = int(a - 'A');
+		}
 	}
 
 	settings.close();
-
-	//loadLevel(1);
 }
 
 void Game::reset()
@@ -74,10 +83,11 @@ void Game::loadTextures()
 	}
 	m_bgTexture.loadFromFile("data/assets/images/BG2.png");
 
-	m_allTextures.emplace_back();
-	m_allTextures.back().loadFromFile("data/assets/images/zombie.png");
-	m_allTextures.emplace_back();
-	m_allTextures.back().loadFromFile("data/assets/images/zombie_dead.png");
+	m_allTextures["zombie"].loadFromFile("data/assets/images/zombie.png");
+	m_allTextures["zombie_dead"].loadFromFile("data/assets/images/zombie_dead.png");
+	m_allTextures["flag"].loadFromFile("data/assets/images/flag.png");
+	m_allTextures["lava"].loadFromFile("data/assets/images/lava.png");
+	m_allTextures["water"].loadFromFile("data/assets/images/water.png");
 }
 
 void Game::start()
@@ -90,6 +100,7 @@ void Game::start()
 void Game::loadLevel(int level)
 {
 	reset();
+	m_curLevel = level;
 
 	std::ifstream file;
 	file.open("data/assets/Levels/level" + std::to_string(level) + ".txt");
@@ -97,9 +108,9 @@ void Game::loadLevel(int level)
 	std::string s;
 	while (std::getline(file, s)) {
 		std::stringstream line(s);
-		char type;
+		std::string type;
 		line >> type;
-		if (type == 'l') {
+		if (type == "l") {
 			int w, h;
 			line >> w >> h;
 
@@ -108,34 +119,48 @@ void Game::loadLevel(int level)
 
 			addPlatform({ 0, 0 }, { 1, h }, m_tileSize, m_tile_textures);
 			addPlatform({ w - 1, 0 }, { 1, h }, m_tileSize, m_tile_textures);
+			addObstacles({ 0, h}, { w, 1 }, m_tileSize, m_allTextures["lava"]);
 
 		}
-		else if (type == '#') {
+		else if (type == "#") {
 			int x, y, w, h;
 			line >> x >> y >> w >> h;
 
 			addPlatform({ x, y }, { w, h }, m_tileSize, m_tile_textures);
 		}
-		else if (type == 'm') {
+		else if (type == "m") {
 			int x, y, w, h, d1;
 			float d, sx, sy;
 			line >> x >> y >> w >> h >> d >> sx >> sy >> d1;
 			addMovingPlatform({ x,y }, { w,h }, m_tileSize, d, { sx, sy }, d1, m_tile_textures);
 		}
-		else if (type == 'p') {
+		else if (type == "p") {
 			int x, y;
 			line >> x >> y;
 			m_player.setPosition(x * m_tileSize.x, y * m_tileSize.y);
 		}
-		else if (type == 'r') {
+		else if (type == "rl") {
 			int x, y, w, h;
 			line >> x >> y >> w >> h;
-			addObstacles({ x,y }, { w,h }, m_tileSize);
+			addObstacles({ x,y }, { w,h }, m_tileSize, m_allTextures["lava"]);
 		}
-		else if (type == 'e') {
+		else if (type == "rw") {
+			int x, y, w, h;
+			line >> x >> y >> w >> h;
+			addObstacles({ x,y }, { w,h }, m_tileSize, m_allTextures["water"]);
+		}
+		else if (type == "e") {
 			int x, y;
 			line >> x >> y;
-			addEnemy(sf::Vector2f(x * m_tileSize.x, y * m_tileSize.y), m_allTextures[0], m_allTextures[1]);
+			addEnemy(sf::Vector2f(x * m_tileSize.x, y * m_tileSize.y), m_allTextures["zombie"], m_allTextures["zombie_dead"]);
+		}
+		else if (type == "f") {
+			int x, y;
+			line >> x >> y;
+			flag.setPosition(sf::Vector2f(x,y) * m_tileSize);
+			flag.setTexture(m_allTextures["flag"]);
+			flagBox.left = flag.getPosition().x;
+			flagBox.top = flag.getPosition().y;
 		}
 	}
 
@@ -145,9 +170,20 @@ void Game::loadLevel(int level)
 
 void Game::loadNextLevel()
 {
-	loadLevel(
-		m_curLevel = (m_curLevel + 1) % (m_totalLevels) + 1
-	);
+	if (m_curLevel < m_totalLevels) loadLevel(++m_curLevel);
+	else {
+		loadLevel(m_curLevel = 1);
+	}
+}
+
+void Game::resetKillCount()
+{
+	m_player.m_enemyKillCount = 0;
+}
+
+int Game::getTotalKillCount()
+{
+	return m_player.m_enemyKillCount;
 }
 
 int Game::getTotalLevels()
@@ -179,6 +215,7 @@ void Game::update(float dt)
 	updateView();
 	updateAllEnemies(dt); 
 	updateAllMovingPlatforms(dt);
+	if (m_player.getGlobalBounds().intersects(flagBox)) loadNextLevel();
 }
 
 void Game::updateView()
@@ -194,7 +231,7 @@ void Game::updateView()
 
 	//std::cout << camCenter.x - m_winSize.x/2.f << " " << camCenter.y - m_winSize.y/2.f << std::endl;
 
-	Enemy::m_viewBox = sf::FloatRect(camCenter.x - m_winSize.x / 2.f, camCenter.y - m_winSize.y / 2.f, m_winSize.x, m_winSize.y);
+	Enemy::m_viewBox = sf::FloatRect(camCenter.x - m_winSize.x / 2.f - 96, camCenter.y - m_winSize.y / 2.f - 96, m_winSize.x + 192, m_winSize.y + 192);
 }
 
 void Game::draw(sf::RenderTarget& target, sf::RenderStates states)
@@ -218,6 +255,8 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states)
 	drawAllPlatforms(target, states);
 	drawAllObstacles(target, states);
 	
+	target.draw(flag, states);
+
 	/*sf::RectangleShape rect;
 	rect.setSize(m_camView.getSize());
 	rect.setOutlineThickness(-2);
@@ -229,7 +268,7 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states)
 
 
 	//////////////////////////////////////////////////////////////////////
-	sf::View miniView;
+	/*sf::View miniView;
 	miniView.setCenter(m_lvlSize.x * 0.5f, m_lvlSize.y * 0.5f);
 	miniView.setSize(m_lvlSize);
 	miniView.setViewport(sf::FloatRect(0.75, 0, 0.25, 0.25));
@@ -245,7 +284,7 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states)
 	rect.setOutlineColor(sf::Color::Red);
 	rect.setOrigin(rect.getSize() / 2.f);
 	rect.setPosition(m_camView.getCenter());
-	target.draw(rect, states);
+	target.draw(rect, states);*/
 	//////////////////////////////////////////////////////////////////////
 
 	target.setView(target.getDefaultView());
@@ -254,3 +293,4 @@ void Game::draw(sf::RenderTarget& target, sf::RenderStates states)
 bool Game::isGameOver() {
 	return m_player.isPlayerDead();
 }
+

@@ -3,7 +3,7 @@
 #include<SFML/Audio.hpp>
 #include"Game.hpp"
 #include"Platform.hpp"
-#include<ZUI.hpp>
+#include"Timer.hpp"
 #include<vector>
 #include<iostream>
 #include<unordered_map>
@@ -82,6 +82,8 @@ private:
 
 	Game m_game;						/// < game object
 	sf::Clock m_clock;					/// < main clock used for updating relative to time
+	Chronometer m_scoreClock;
+	float m_score;
 
 	AppState m_state;
 	AppState m_prevState;
@@ -128,10 +130,13 @@ private:
 	zui::Inputbox_ptr m_inputbox_control_left;
 	zui::Inputbox_ptr m_inputbox_control_right;
 
+	// Game Over Menu 
+	zui::Textbox_ptr m_textbox_scoreBoard;
+	zui::Textbox_ptr m_textbox_score;
+
 	zui::Textbox_ptr m_textbox_control_jump; // temp
 
 	zui::TextButton_ptr m_button_save;
-
 	// Level menu Buttons
 	std::vector<zui::TextButton_ptr> m_levels;
 
